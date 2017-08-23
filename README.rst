@@ -648,7 +648,7 @@ Deployment manifest
                 path: /etc/certs
 
 Deployment templates
-====================
+--------------------
 
 .. code-block:: yaml
 
@@ -682,7 +682,7 @@ Deployment templates
               replicas: 2
 
 PetSet manifest
----------------------
+---------------
 
 .. code-block:: yaml
 
