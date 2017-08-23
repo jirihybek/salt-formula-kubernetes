@@ -604,7 +604,7 @@ Deployment manifest
 
 .. code-block:: yaml
 
-  salt:
+  kubernetes:
     control:
       enabled: True
       hostNetwork: True
@@ -630,14 +630,14 @@ Deployment manifest
           container:
             memcached:
               image: memcached
-              tag:2
+              tag: 2
               ports:
               - port: 8774
                 name: nova-api
               - port: 8775
                 name: nova-metadata
               variables:
-              - name: HTTP_TLS_CERTIFICATE:
+              - name: HTTP_TLS_CERTIFICATE
                 value: /certs/domain.crt
               - name: HTTP_TLS_KEY
                 value: /certs/domain.key
@@ -646,6 +646,40 @@ Deployment manifest
                 type: hostPath
                 mount: /certs
                 path: /etc/certs
+
+Deployment templates
+====================
+
+.. code-block:: yaml
+
+  kubernetes:
+    control:
+      enabled: True
+      service_template:
+        my_service_template:
+          name: my_service_{{name}}
+          enabled: True
+          template:
+            service: my_service_{{name}}
+            role: server
+            type: LoadBalancer
+            replicas: {{replicas}}
+            kind: Deployment
+            apiVersion: extensions/v1beta1
+            container:
+              my_container:
+                image: some_image
+                tag: 2
+                variables:
+                - name: NODE_ROLE
+                  value: {{role}}
+          services:
+            - name: master
+              role: MASTER
+              replicas: 3
+            - name: slave
+              role: SLAVE
+              replicas: 2
 
 PetSet manifest
 ---------------------

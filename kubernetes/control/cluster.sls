@@ -5,6 +5,7 @@
   file.directory:
   - makedirs: true
 
+{#- Process jobs #}
 {%- if control.job is defined %}
 
 {%- for job_name, job in control.job.iteritems() %}
@@ -25,6 +26,43 @@
 
 {%- endif %}
 
+{#- Process service templates and merge them do control.service #}
+{%- if control.enabled %}
+
+  {%- if control.service_template is defined %}
+
+    {%- for service_template_name, service_template in control.service_template.iteritems() %}
+      {%- if service_template.get('enabled', true) %}
+
+        {#- Iterate over specified services #}
+        {%- for service_item in service_template.get('services', []) %}
+
+          {#- Prepare vars #}
+          {%- set _service_name = [service_template.name] %}
+          {%- set _service_config = [service_template.template|yaml] %}
+
+          {#- Replace params #}
+          {%- for key, value in service_item.iteritems() %}
+
+            {%- set replacer = "{{" + key + "}}" %}
+            {%- do _service_name.append(_service_name|last|replace(replacer, value)) %}
+            {%- do _service_config.append(_service_config|last|replace(replacer, value)) %}
+
+          {%- endfor %}
+
+          {#- Add service to control.service #}
+          {%- do control.service.update({_service_name|last : _service_config|last|load_yaml}) %}
+
+        {%- endfor %}
+
+      {%- endif %}
+    {%- endfor %}
+
+  {%- endif %}
+
+{%- endif %}
+
+{#- Process services #}
 {%- for service_name, service in control.service.iteritems() %}
 
 {%- if service.enabled %}
@@ -93,6 +131,8 @@
 {%- endif %}
 
 {%- endfor %}
+
+{#- Process config maps #}
 
 {%- for configmap_name, configmap in control.get('configmap', {}).iteritems() %}
 {%- if configmap.enabled|default(True) %}

@@ -11,6 +11,11 @@
         'services': [],
         'version': _version|float,
     },
+    'MacOS': {
+        'pkgs': [],
+        'services': [],
+        'version': _version|float,
+    }
 }, merge=salt['pillar.get']('kubernetes:common')) %}
 
 {% set master = salt['grains.filter_by']({
